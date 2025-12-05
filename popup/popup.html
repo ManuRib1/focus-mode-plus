@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="popup.css">
+  <title>Focus Mode</title>
+</head>
+<body>
+
+
+    <h1>🎯 Mode Focus</h1>
+
+    <div class="toggle-container">
+      <span>Activer le Focus</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleFocus">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <h2>🔒 Sites bloqués</h2>
+
+    <div class="input-group">
+      <input type="text" id="siteInput" placeholder="ex : youtube.com">
+      <button id="addSite" class="btn">Ajouter</button>
+    </div>
+
+    <ul id="blockedList" class="list"></ul>
+
+  
+
+  <script src="popup.js"></script>
+</body>
+</html>
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>Focus Mode</h1>
+
+  <label class="switch">
+    <input type="checkbox" id="toggleFocus">
+    <span class="slider"></span>
+  </label>
+
+  <h2>Sites bloqués</h2>
+  <input type="text" id="siteInput" placeholder="ex: youtube.com">
+  <button id="addSite">Ajouter</button>
+  <ul id="blockedList"></ul>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+-->
