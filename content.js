@@ -1,7 +1,6 @@
 let focusActive = false;
 let observer = null;
 
-// ------------------- AD SELECTORS -------------------
 const adSelectors = [
   "[id^='ad-']",
   "[class^='ad-']",
@@ -15,88 +14,41 @@ const adSelectors = [
   "[class*='sponsor']"
 ];
 
-// ------------------- MESSAGE LISTENER -------------------
 chrome.runtime.onMessage.addListener((msg) => {
-  console.log("Message reçu dans content.js :", msg);
+  console.log("Message reçu :", msg);
 
   if (msg.action === "FOCUS_ADS_STATE") {
     focusActive = msg.enabled;
-    console.log("Toggle état actuel :", focusActive);
+    console.log("Toggle état :", focusActive);
 
-    if (focusActive) {
-      console.log("Activation du blocage des pubs");
-      startAdBlock();
-    } else {
-      console.log("Désactivation du blocage des pubs");
-      stopAdBlock();
-    }
+    if (focusActive) startAdBlock();
+    else stopAdBlock();
   }
 
   if (msg.action === "FOCUS_BLOCK") {
-    console.log("Blocage complet du site activé");
     applyFocusOverlay();
   }
 });
 
-// ------------------- FOCUS OVERLAY -------------------
-function applyFocusOverlay() {
-  if (document.getElementById("focus-blocker")) return;
-
-  const blocker = document.createElement("div");
-  blocker.id = "focus-blocker";
-
-  Object.assign(blocker.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100%",
-    height: "100%",
-    background: "rgba(0,0,0,0.85)",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "2rem",
-    zIndex: "2147483647",
-    pointerEvents: "all",
-    textAlign: "center"
-  });
-
-  blocker.innerText = "⛔ Ce site est bloqué en mode Focus.";
-
-  document.documentElement.style.overflow = "hidden";
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (child !== blocker) {
-      child.style.filter = "blur(5px)";
-    }
-  });
-
-  document.body.appendChild(blocker);
-}
-
 // ------------------- AD BLOCKING -------------------
 function hideAds() {
-  console.log("hideAds() appelé");
   adSelectors.forEach(sel => {
     document.querySelectorAll(sel).forEach(el => {
-      console.log("Masquage pub :", el);
-      el.dataset.wasVisible = el.style.display !== "none";
-      el.style.display = "none";
+      // Masque uniquement si toggle ON
+      if (focusActive && el.style.display !== "none") {
+        el.style.setProperty('display', 'none', 'important');
+        console.log("Pub masquée :", el);
+      }
     });
   });
 }
 
 function showAds() {
-  console.log("showAds() appelé");
   adSelectors.forEach(sel => {
     document.querySelectorAll(sel).forEach(el => {
-      if (el.dataset.wasVisible) {
-        console.log("Restoration pub :", el);
-        el.style.display = "";
-        delete el.dataset.wasVisible;
-      }
+      // Supprime la règle display:none inline
+      el.style.removeProperty('display');
+      console.log("Pub restaurée :", el);
     });
   });
 }
@@ -123,4 +75,39 @@ function stopAdBlock() {
     observer = null;
     console.log("MutationObserver désactivé");
   }
+}
+
+// ------------------- FOCUS OVERLAY -------------------
+function applyFocusOverlay() {
+  if (document.getElementById("focus-blocker")) return;
+
+  const blocker = document.createElement("div");
+  blocker.id = "focus-blocker";
+
+  Object.assign(blocker.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.85)",
+    color: "white",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "2rem",
+    zIndex: "2147483647",
+    pointerEvents: "all",
+    textAlign: "center"
+  });
+
+  blocker.innerText = "⛔ Ce site est bloqué en mode Focus.";
+  document.documentElement.style.overflow = "hidden";
+
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (child !== blocker) child.style.filter = "blur(5px)";
+  });
+
+  document.body.appendChild(blocker);
 }
